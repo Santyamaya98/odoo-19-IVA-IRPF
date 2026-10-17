@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:18
+    container_name: rb-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    image: odoo:19.0
+    container_name: rb-odoo
+    command: odoo -d reyesBarber -i base,web,base_bank_from_iban,date_range,account_tax_balance,l10n_es_aeat,l10n_es_aeat_mod111,l10n_es_partner,l10n_es_aeat_mod303,l10n_es_aeat_mod130 --http-interface=0.0.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+      - "8071:8071"
+    environment:
+      HOST: ${HOST}
+      PORT: ${PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: unless-stopped
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./extra-addons:/mnt/extra-addons
+
+volumes:
+  postgresql-data:
+  odoo-web-data:

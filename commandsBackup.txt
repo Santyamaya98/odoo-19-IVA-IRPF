@@ -1,0 +1,3 @@
+ sudo docker exec -it rb-db psql -U reyesBarber -l
+ sudo docker exec rb-db pg_dump -U reyesBarber -d RB -Fc > ~/backups/postgresql/odoo_backup.dump
+ 
